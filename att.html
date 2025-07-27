@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Аттестация</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #0f0f0f, #1f1f1f);
+      color: #f5f5f5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px;
+      min-height: 100vh;
+    }
+    h1 {
+      font-size: 32px;
+      margin-bottom: 20px;
+    }
+    select, button, input {
+      margin: 10px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      background-color: #222;
+      color: #fff;
+      font-size: 16px;
+      transition: background-color 0.3s;
+    }
+    select:hover, button:hover, input:hover {
+      background-color: #333;
+    }
+    .question-box, #result {
+      margin-top: 30px;
+      background: #1c1c1c;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+      max-width: 800px;
+      width: 100%;
+      animation: fadeIn 0.5s ease;
+    }
+    .answers button {
+      margin: 10px;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <h1>Аттестация Администрации</h1>
+
+  <input type="text" id="nickname" placeholder="Ник аттестуемого" />
+  <select id="role">
+    <option value="helper">Хелпер</option>
+    <option value="moder">Модератор</option>
+  </select>
+  <button onclick="startTest()">Начать аттестацию</button>
+
+  <div id="test" class="question-box" style="display:none;">
+    <div id="timer"></div>
+    <h2 id="question"></h2>
+    <div class="answers">
+      <button onclick="gradeAnswer(0)">❌ Неверно</button>
+      <button onclick="gradeAnswer(0.5)">⚠️ Частично</button>
+      <button onclick="gradeAnswer(1)">✅ Верно</button>
+    </div>
+    <button onclick="nextQuestion()">Следующий вопрос</button>
+  </div>
+
+  <div id="result" style="display:none;">
+    <h2>Результат</h2>
+    <p id="finalName"></p>
+    <p id="score"></p>
+    <p id="time"></p>
+    <h3>Ошибки:</h3>
+    <ul id="log"></ul>
+  </div>
+
+  <script>
+    const questions = {
+      helper: [
+        "Назови обязанности Хелпера",
+        "После захода на рабочий сервер, что нужно сделать перед началом работы?",
+        "Как проводится проверка на АФК?",
+        "Как снять пред? А выговор?",
+        "Какой срок хранения видеофиксаций с нарушением игрока?",
+        "Ты увидел, что игрок с 5 уровнем нарушил, что ты будешь делать?",
+        "Какой минимальный онлайн в день/месяц?",
+        "Что будешь делать если увидишь игрока летающего по карте?",
+        "Во сколько падает груз?",
+        "Можно ли продавать именные номера?",
+        "Как создать семью и какая на нее стоимость?",
+        "Для чего катализаторы?",
+        "Какие есть ветки развития в клане?",
+        "В каких фракциях нет выхода на крышу?",
+        "С какого звания можно писать в Объявление Фракций?",
+        "Где можно продать квартиру/дом?",
+        "Через стажировку каких фракций нельзя получить военный билет?",
+        "Какие кланы участвуют в битве за картель?",
+        "С какого ранга доступен сбор МЗДЫ с территорий?",
+        "С какого ранга можно присоединиться к битве за территории?",
+        "Сколько здоровья добавляет бафф “Доритос” максимальной прокачки?",
+        "Какое наказание за 1 стадию срыва МП?",
+        "Когда можно использовать голосовую отыгровку?",
+        "Что такое правило новой жизни?",
+        "Когда можно чинить машины игрокам?",
+        "Если ты увидел что сотрудник фракции нарушил без формы, будешь отправлять проблемник?",
+        "Тебя телепортирует модератор на репорт, где игрок жалуется на выданное тобой наказание. Что будешь делать?",
+        "Ты принимаешь репорт и видишь, как игрок давит второго на машине... Будешь наказывать?"
+      ],
+      moder: [
+        "Назови обязанности модератора?",
+        "Каким образом ты будешь изменять никнейм игроку?",
+        "Как убрать ограничение на аккаунте, связанное с продажей имущества?",
+        "Какие скины запрещено выдавать?",
+        "Что выдается за обход блокировки?",
+        "Что такое Абьюз?",
+        "Назови виды абьюза по правилам проекта",
+        "Когда игрок простреливает текстуру — это что?",
+        "В чём различие IC от OOC?",
+        "Какой транспорт нельзя продать на БУ рынке?",
+        "Ремонтируется ли колесо рем. комплектом?",
+        "Какие есть виды валют на проекте?",
+        "Какой должен быть уровень оружия, чтобы утилизировать?",
+        "Когда проходит аукцион в порту МСК?",
+        "С какого уровня можно купить широн на бу?",
+        "Какими способами можно изменить соц. рейтинг?",
+        "Назови способы получения парашюта на проекте",
+        "Глобальный — IC или OOC чат?",
+        "Какие виды гонок есть на проекте?",
+        "Где можно потратить биткоины?",
+        "Сколько видов лидербордов есть на проекте и какие?",
+        "Как часто обновляются Уникальные предложения?",
+        "Как включить неон на авто?",
+        "Что ответить игроку по поводу ×2 доната у друга?",
+        "Какие виды деталей в тюнинге есть?",
+        "Назови хобби проекта",
+        "Что ответить игроку, не согласному с наказанием?",
+        "Игрок перекрыл дорогу ТС. Что делать?",
+        "Передача аккаунта — какое наказание?",
+        "Читер везёт игрока. Действия?",
+        "Что выдается за передачу валюты через казино?",
+        "Как можно нанести ущерб серверу бездействием?",
+        "Игрок говорит “Иди убейся”. За что накажешь?",
+        "На спавне кричат “Слава Украине”. Действия?",
+        "ППС просит паспорт без инвиза. Что делать?",
+        "Оскорбляют в внеигровом чате. Действия?",
+        "Оскорбление в названии клана — что делать?",
+        "Репорт: не может передать деньги девушке. Почему?",
+        "Игрок вышел во время оформления ППС. Что делать?",
+        "Разговариваешь с игроками просто так — последствия?",
+        "Админ другого сервера просит сказать донат — можно?",
+        "Какие команды отыгрываются в голос?",
+        "Можно ли наказывать медиа партнёра по 6.16?",
+        "Война кланов — вмешался ППС. Что делать?",
+        "Репорт о передаче аккаунта — действия?",
+        "Блат от друга-админа. Действия?",
+        "Максимум замов во фракции МЗ?",
+        "Как выйти из ЧС лидеров?",
+        "Когда спутник не отслеживает местоположение?",
+        "Жалоба: лидер понизил с сержанта до стажёра. Что делать?",
+        "Можно ли фракциям использовать статьи из реала?",
+        "Инкассатор ничего не делает. Репорт. Действия?",
+        "Лидер переводит в другой город 3-й раз за неделю. Что делать?",
+        "Лидер видит чаты всех городов?"
+      ]
+    };
+
+    let current = 0, score = 0, selected = [], startTime = 0, questionList = [], role = '', nickname = '';
+
+    function startTest() {
+      nickname = document.getElementById('nickname').value.trim();
+      if (!nickname) return alert('Введите ник аттестуемого');
+      role = document.getElementById('role').value;
+      questionList = questions[role];
+      current = 0;
+      score = 0;
+      selected = [];
+      startTime = Date.now();
+      document.getElementById('test').style.display = 'block';
+      document.getElementById('result').style.display = 'none';
+      showQuestion();
+    }
+
+    function showQuestion() {
+      document.getElementById('question').textContent = questionList[current];
+      updateTimer();
+    }
+
+    function gradeAnswer(value) {
+      score += value;
+      if (value < 1) selected.push({ q: questionList[current], v: value });
+      nextQuestion();
+    }
+
+    function nextQuestion() {
+      current++;
+      if (current >= questionList.length) {
+        endTest();
+      } else {
+        showQuestion();
+      }
+    }
+
+    function endTest() {
+      document.getElementById('test').style.display = 'none';
+      document.getElementById('result').style.display = 'block';
+      const finalScore = (score / questionList.length * 10).toFixed(2);
+      document.getElementById('finalName').textContent = `Аттестуемый: ${nickname}`;
+      document.getElementById('score').textContent = `Оценка: ${finalScore} (${finalScore >= 6 ? 'Пройдено' : 'Не пройдено'})`;
+      const duration = Math.round((Date.now() - startTime) / 1000);
+      document.getElementById('time').textContent = `Время: ${duration} сек.`;
+      const log = document.getElementById('log');
+      log.innerHTML = '';
+      selected.forEach(e => {
+        const li = document.createElement('li');
+        li.textContent = `${e.q} — ${e.v === 0 ? 'Неверно' : 'Частично'}`;
+        log.appendChild(li);
+      });
+    }
+
+    function updateTimer() {
+      const now = Math.round((Date.now() - startTime) / 1000);
+      document.getElementById('timer').textContent = `Прошло: ${now} сек.`;
+    }
+    setInterval(() => {
+      if (document.getElementById('test').style.display === 'block') updateTimer();
+    }, 1000);
+  </script>
+</body>
+</html>
