@@ -4,234 +4,415 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Аттестация</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background: linear-gradient(135deg, #0f0f0f, #1f1f1f);
-      color: #f5f5f5;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 40px;
-      min-height: 100vh;
+    :root{
+      --bg:#0b0b0f;
+      --card:#11131a;
+      --muted:#9aa4b2;
+      --accent: #7c5cff;
+      --accent2:#22d3ee;
+      --good:#16a34a;
+      --bad:#ef4444;
+      --warn:#f59e0b;
+      --glass: rgba(255,255,255,0.06);
+      --border: rgba(255,255,255,0.08);
     }
-    h1 {
-      font-size: 32px;
-      margin-bottom: 20px;
-    }
-    select, button, input {
-      margin: 10px;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 8px;
-      background-color: #222;
-      color: #fff;
-      font-size: 16px;
-      transition: background-color 0.3s;
-    }
-    select:hover, button:hover, input:hover {
-      background-color: #333;
-    }
-    .question-box, #result {
-      margin-top: 30px;
-      background: #1c1c1c;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.3);
-      max-width: 800px;
-      width: 100%;
-      animation: fadeIn 0.5s ease;
-    }
-    .answers button {
-      margin: 10px;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:radial-gradient(1200px 1200px at 10% -10%, rgba(124,92,255,.15), transparent 40%),
+                                 radial-gradient(1200px 1200px at 90% 10%, rgba(34,211,238,.12), transparent 40%),
+                                 linear-gradient(180deg, #0b0b0f 0%, #0b0b0f 60%, #0a0a0c 100%);
+      color:#e5e7eb;font-family:'Inter',system-ui,Segoe UI,Roboto,Arial,sans-serif;min-height:100vh}
+    .wrap{max-width:1100px;margin:0 auto;padding:32px}
+    header{display:flex;gap:16px;align-items:center;justify-content:space-between;margin-bottom:20px}
+    .title{font-weight:800;letter-spacing:.3px;font-size:24px}
+    .nick{display:flex;gap:12px;align-items:center}
+    .input{background:var(--glass);border:1px solid var(--border);padding:12px 14px;border-radius:12px;color:#fff;outline:none;min-width:240px}
+    .input::placeholder{color:#6b7280}
+
+    /* History */
+    .history{background:linear-gradient(180deg, rgba(124,92,255,.08), rgba(34,211,238,.05));border:1px solid var(--border);border-radius:16px;padding:18px 18px 6px;margin:10px 0 22px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+    .history h3{margin:0 0 10px;font-size:16px;color:#cbd5e1}
+    .history-list{display:grid;grid-template-columns:repeat(1,1fr);gap:8px}
+    .hrow{display:flex;gap:10px;align-items:center;justify-content:space-between;background:rgba(255,255,255,.03);border:1px solid var(--border);padding:10px 12px;border-radius:12px}
+    .htag{font-size:12px;color:#9aa4b2}
+    .hpass{font-weight:700}
+
+    /* Role banners */
+    .roles{display:flex;gap:16px;overflow-x:auto;padding-bottom:8px}
+    .role{position:relative;isolation:isolate;min-width:320px;flex:0 0 33%;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:18px;cursor:pointer;transition:transform .25s ease, box-shadow .25s ease}
+    .role:hover{transform:translateY(-4px);box-shadow:0 18px 48px rgba(124,92,255,.15)}
+    .role h4{margin:0 0 6px;font-size:22px;letter-spacing:.2px}
+    .role .meta{display:flex;gap:10px;color:var(--muted);font-size:13px}
+    .role .grad{position:absolute;inset:-2px;border-radius:20px;z-index:-1;background:conic-gradient(from 0deg, rgba(124,92,255,.8), rgba(34,211,238,.8), rgba(20,184,166,.8), rgba(124,92,255,.8));filter:blur(28px);opacity:.35;transition:opacity .35s ease}
+    .role:hover .grad{opacity:.6}
+    .role .chip{display:inline-flex;gap:8px;align-items:center;font-weight:700}
+    .chip .ok{color:var(--good)}
+    .chip .no{color:var(--bad)}
+
+    /* Test card */
+    .card{margin-top:18px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:0 16px 48px rgba(0,0,0,.35);animation:rise .45s ease}
+    @keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    .qtext{font-size:20px;margin:8px 0 2px}
+    .progress{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
+    .bar{position:relative;width:100%;height:10px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:999px;overflow:hidden;margin-right:10px}
+    .bar > span{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .35s ease}
+    .pcount{font-size:12px;color:var(--muted)}
+
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+    .btn{padding:12px 16px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:#fff;cursor:pointer;font-weight:600;transition:transform .15s ease, filter .2s}
+    .btn:hover{transform:translateY(-2px)}
+    .btn.good{background:rgba(34,197,94,.1)}
+    .btn.warn{background:rgba(245,158,11,.1)}
+    .btn.bad{background:rgba(239,68,68,.1)}
+
+    /* Result */
+    .result{display:none;margin-top:18px;padding:24px;border-radius:16px;border:1px solid var(--border);background:linear-gradient(180deg, rgba(34,197,94,.08), rgba(34,197,94,.04));box-shadow:0 20px 60px rgba(0,0,0,.35)}
+    .result.bad{background:linear-gradient(180deg, rgba(239,68,68,.12), rgba(239,68,68,.06))}
+    .rhead{display:flex;align-items:center;justify-content:space-between}
+    .rgrade{font-size:28px;font-weight:800}
+    .rchip{padding:6px 10px;border-radius:999px;border:1px solid var(--border);font-weight:700}
+    .rchip.ok{color:#fff;background:rgba(34,197,94,.15)}
+    .rchip.no{color:#fff;background:rgba(239,68,68,.15)}
+    .rgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+    .rcell{background:rgba(255,255,255,.04);border:1px solid var(--border);padding:12px;border-radius:12px}
+    .rlabel{color:var(--muted);font-size:12px}
+    .rval{font-weight:700;margin-top:4px}
+    .rlog{margin-top:14px}
+    .rlog li{margin:6px 0}
+    .download{margin-top:10px}
   </style>
 </head>
 <body>
-  <h1>Аттестация Администрации</h1>
+  <div class="wrap">
+    <header>
+      <div class="title">Аттестации</div>
+      <div class="nick">
+        <input id="nickname" class="input" placeholder="Ник аттестуемого"/>
+      </div>
+    </header>
 
-  <input type="text" id="nickname" placeholder="Ник аттестуемого" />
-  <select id="role">
-    <option value="helper">Хелпер</option>
-    <option value="moder">Модератор</option>
-  </select>
-  <button onclick="startTest()">Начать аттестацию</button>
+    <!-- История (всегда сверху) -->
+    <section class="history">
+      <h3>История аттестаций</h3>
+      <div id="historyList" class="history-list"></div>
+      <div class="download"><button class="btn" id="downloadBtn">Скачать attlist.txt</button></div>
+    </section>
 
-  <div id="test" class="question-box" style="display:none;">
-    <div id="timer"></div>
-    <h2 id="question"></h2>
-    <div class="answers">
-      <button onclick="gradeAnswer(0)">❌ Неверно</button>
-      <button onclick="gradeAnswer(0.5)">⚠️ Частично</button>
-      <button onclick="gradeAnswer(1)">✅ Верно</button>
-    </div>
-    <button onclick="nextQuestion()">Следующий вопрос</button>
-  </div>
+    <!-- Выбор роли (горизонтальные баннеры) -->
+    <section class="roles" id="roleRow">
+      <div class="role" data-role="helper" tabindex="0">
+        <div class="grad"></div>
+        <h4>ХЕЛПЕР</h4>
+        <div class="meta"><span>27 вопросов</span>•<span>~7:45</span></div>
+      </div>
+      <div class="role" data-role="moderator" tabindex="0">
+        <div class="grad"></div>
+        <h4>МОДЕРАТОР</h4>
+        <div class="meta"><span>57 вопросов</span>•<span>~16:01</span></div>
+      </div>
+      <div class="role" data-role="admin" tabindex="0">
+        <div class="grad"></div>
+        <h4>АДМИНИСТРАТОР</h4>
+        <div class="meta"><span>25 вопросов</span>•<span>~10:00</span></div>
+      </div>
+    </section>
 
-  <div id="result" style="display:none;">
-    <h2>Результат</h2>
-    <p id="finalName"></p>
-    <p id="score"></p>
-    <p id="time"></p>
-    <h3>Ошибки:</h3>
-    <ul id="log"></ul>
+    <!-- Карточка теста -->
+    <section id="testCard" class="card" style="display:none">
+      <div class="progress">
+        <div class="bar"><span id="barFill"></span></div>
+        <div class="pcount" id="pcount">0/0</div>
+      </div>
+      <div id="qtext" class="qtext"></div>
+      <div class="pcount" id="timer">—</div>
+      <div class="actions">
+        <button class="btn bad"  id="btnWrong">❌ Неверно</button>
+        <button class="btn warn" id="btnPartial">⚠️ Частично</button>
+        <button class="btn good" id="btnRight">✅ Верно</button>
+        <button class="btn" id="btnNext">Следующий вопрос →</button>
+      </div>
+    </section>
+
+    <!-- Результат -->
+    <section id="result" class="result">
+      <div class="rhead">
+        <div class="rgrade" id="rGrade">Оценка — 0.00/10</div>
+        <div class="rchip" id="rChip">—</div>
+      </div>
+      <div class="rgrid">
+        <div class="rcell"><div class="rlabel">Аттестуемый</div><div class="rval" id="rName">—</div></div>
+        <div class="rcell"><div class="rlabel">Роль</div><div class="rval" id="rRole">—</div></div>
+        <div class="rcell"><div class="rlabel">Время</div><div class="rval" id="rTime">—</div></div>
+      </div>
+      <div class="rgrid" style="margin-top:8px">
+        <div class="rcell"><div class="rlabel">Правильных</div><div class="rval" id="rOk">—</div></div>
+        <div class="rcell"><div class="rlabel">Частично</div><div class="rval" id="rHalf">—</div></div>
+        <div class="rcell"><div class="rlabel">Неверных</div><div class="rval" id="rBad">—</div></div>
+      </div>
+      <div class="rlog">
+        <div class="rlabel">Лог неточных ответов</div>
+        <ul id="rList"></ul>
+      </div>
+    </section>
   </div>
 
   <script>
+    // ===== Банк вопросов =====
     const questions = {
       helper: [
-        "Назови обязанности Хелпера",
-        "После захода на рабочий сервер, что нужно сделать перед началом работы?",
-        "Как проводится проверка на АФК?",
-        "Как снять пред? А выговор?",
-        "Какой срок хранения видеофиксаций с нарушением игрока?",
-        "Ты увидел, что игрок с 5 уровнем нарушил, что ты будешь делать?",
-        "Какой минимальный онлайн в день/месяц?",
-        "Что будешь делать если увидишь игрока летающего по карте?",
-        "Во сколько падает груз?",
-        "Можно ли продавать именные номера?",
-        "Как создать семью и какая на нее стоимость?",
-        "Для чего катализаторы?",
-        "Какие есть ветки развития в клане?",
-        "В каких фракциях нет выхода на крышу?",
-        "С какого звания можно писать в Объявление Фракций?",
-        "Где можно продать квартиру/дом?",
-        "Через стажировку каких фракций нельзя получить военный билет?",
-        "Какие кланы участвуют в битве за картель?",
-        "С какого ранга доступен сбор МЗДЫ с территорий?",
-        "С какого ранга можно присоединиться к битве за территории?",
-        "Сколько здоровья добавляет бафф “Доритос” максимальной прокачки?",
-        "Какое наказание за 1 стадию срыва МП?",
-        "Когда можно использовать голосовую отыгровку?",
-        "Что такое правило новой жизни?",
-        "Когда можно чинить машины игрокам?",
-        "Если ты увидел что сотрудник фракции нарушил без формы, будешь отправлять проблемник?",
-        "Тебя телепортирует модератор на репорт, где игрок жалуется на выданное тобой наказание. Что будешь делать?",
-        "Ты принимаешь репорт и видишь, как игрок давит второго на машине... Будешь наказывать?"
+        "Назови обязанности Хелпера (слежка за фракцией, репорты)",
+        "После захода на рабочий сервер, что нужно сделать перед началом работы? (зайти в дс, отписать о заходе, отсортировать репорты по айди)",
+        "Как проводится проверка на АФК? (5 минут, чередуя /b чат и войс)",
+        "Как снять пред? А выговор? (14 д +150 реп, 30д +300 реп)",
+        "Какой срок хранения видеофиксаций с нарушением игрока? (14 дней)",
+        "Ты увидел, что игрок с 5 уровнем нарушил, что ты будешь делать? (предупреждение, если повтор — наказание)",
+        "Какой минимальный онлайн в день/месяц? (4, 120)",
+        "Что будешь делать если увидишь игрока летающего по карте? (откину в кпз/кикну до прихода старших)",
+        "Во сколько падает груз? (12:00, 16:00, 21:30, 00:00)",
+        "Можно ли продавать именные номера? (нет)",
+        "Как создать семью и какая на нее стоимость? (5кк или 1к доната)",
+        "Для чего катализаторы? (+% к прокачке оружия)",
+        "Какие есть ветки развития в клане? (байкеры, стритрейсеры, братки-90)",
+        "В каких фракциях нет выхода на крышу? (Мэрии)",
+        "С какого звания можно писать в Объявление Фракций? (Старшина)",
+        "Где можно продать квартиру/дом? (Мэрия, Торговая площадка, Аукцион)",
+        "Через стажировку каких фракций нельзя получить военный билет? (Мэрия и МЗ)",
+        "Какие кланы участвуют в битве за картель? (топ 10)",
+        "С какого ранга доступен сбор МЗДЫ с территорий? (Старший)",
+        "С какого ранга можно присоединиться к битве за территории? (Местный)",
+        "Сколько здоровья добавляет бафф “Доритос” максимальной прокачки? (25 ед)",
+        "Какое наказание за 1 стадию срыва МП? (Кик)",
+        "Когда можно использовать голосовую отыгровку? (если 50%+ участников согласны)",
+        "Что такое правило новой жизни? (после смерти нельзя продолжать прежний РП-процесс)",
+        "Когда можно чинить машины игрокам? (в случае бага, нанесящего урон авто)",
+        "Если сотрудник фракции нарушил без формы, отправлять проблемник? (нет)",
+        "Тебя ТПшнул модератор на репорт о твоём наказании — будешь объяснять в войс? (нет, в войс нельзя)"
       ],
-      moder: [
-        "Назови обязанности модератора?",
-        "Каким образом ты будешь изменять никнейм игроку?",
-        "Как убрать ограничение на аккаунте, связанное с продажей имущества?",
-        "Какие скины запрещено выдавать?",
-        "Что выдается за обход блокировки?",
-        "Что такое Абьюз?",
-        "Назови виды абьюза по правилам проекта",
-        "Когда игрок простреливает текстуру — это что?",
-        "В чём различие IC от OOC?",
-        "Какой транспорт нельзя продать на БУ рынке?",
-        "Ремонтируется ли колесо рем. комплектом?",
-        "Какие есть виды валют на проекте?",
-        "Какой должен быть уровень оружия, чтобы утилизировать?",
-        "Когда проходит аукцион в порту МСК?",
-        "С какого уровня можно купить широн на бу?",
-        "Какими способами можно изменить соц. рейтинг?",
-        "Назови способы получения парашюта на проекте",
-        "Глобальный — IC или OOC чат?",
-        "Какие виды гонок есть на проекте?",
-        "Где можно потратить биткоины?",
-        "Сколько видов лидербордов есть на проекте и какие?",
-        "Как часто обновляются Уникальные предложения?",
-        "Как включить неон на авто?",
-        "Что ответить игроку по поводу ×2 доната у друга?",
-        "Какие виды деталей в тюнинге есть?",
-        "Назови хобби проекта",
-        "Что ответить игроку, не согласному с наказанием?",
-        "Игрок перекрыл дорогу ТС. Что делать?",
-        "Передача аккаунта — какое наказание?",
-        "Читер везёт игрока. Действия?",
-        "Что выдается за передачу валюты через казино?",
-        "Как можно нанести ущерб серверу бездействием?",
-        "Игрок говорит “Иди убейся”. За что накажешь?",
-        "На спавне кричат “Слава Украине”. Действия?",
-        "ППС просит паспорт без инвиза. Что делать?",
-        "Оскорбляют в внеигровом чате. Действия?",
-        "Оскорбление в названии клана — что делать?",
-        "Репорт: не может передать деньги девушке. Почему?",
-        "Игрок вышел во время оформления ППС. Что делать?",
-        "Разговариваешь с игроками просто так — последствия?",
-        "Админ другого сервера просит сказать донат — можно?",
-        "Какие команды отыгрываются в голос?",
-        "Можно ли наказывать медиа партнёра по 6.16?",
-        "Война кланов — вмешался ППС. Что делать?",
-        "Репорт о передаче аккаунта — действия?",
-        "Блат от друга-админа. Действия?",
-        "Максимум замов во фракции МЗ?",
-        "Как выйти из ЧС лидеров?",
-        "Когда спутник не отслеживает местоположение?",
-        "Жалоба: лидер понизил с сержанта до стажёра. Что делать?",
-        "Можно ли фракциям использовать статьи из реала?",
-        "Инкассатор ничего не делает. Репорт. Действия?",
-        "Лидер переводит в другой город 3-й раз за неделю. Что делать?",
-        "Лидер видит чаты всех городов?"
+      moderator: [
+        "Назови обязанности модератора (курирование фракций, помощь младшей администрации, выдачи, смена нрп ников и пр.)",
+        "Как изменять никнейм игроку? (ТП на крышу, спросить, при оск — на своё усмотрение)",
+        "Как убрать ограничение на аккаунте по продаже имущества? (техподдержка)",
+        "Какие скины запрещено выдавать? (дети, животные, нерелиз, помеченные красным)",
+        "Что выдается за обход блокировки? (повтор срока блокировки)",
+        "Что такое абьюз? (использование недоработок для преимущества)",
+        "Назови виды абьюза (оружия, стамины, ворот)",
+        "Прострел текстур — это? (абьюз)",
+        "Различие IC и OOC (ig vs real)",
+        "Какой транспорт нельзя продавать на БУ? (морской/воздушный/фуры/ивентовые)",
+        "Ремкомплект чинит колесо? (нет, запаска)",
+        "Виды валют (рейс-коины, next-коины, игровая, донат, клановая, утилизационные, биткоины, с опасных заданий, реферальные, фестивальная)",
+        "Какой уровень оружия для утилизации? (2)",
+        "Когда аукцион в порту МСК? (ср и вс 18:00)",
+        "С какого уровня можно купить широн на БУ? (с любого)",
+        "Как изменить соц.рейтинг? (в МЗ за валюту, лайк, церковь, готовка, фракция)",
+        "Способы получения парашюта (воздушный ТС водитель, Останкино, учение в армии)",
+        "Глобальный — IC или OOC? (IC)",
+        "Виды гонок (спринт, дрифт, драг, гоночная битва, уличные)",
+        "Где потратить биткоины? (раздел Форбс)",
+        "Сколько лидербордов и названия? (автопарк, имущество, оружие, достижения)",
+        "Как часто обновляются уникальные предложения? (2 раза в неделю: пн, чт)",
+        "Как включить неон? (Tab — включить неон)",
+        "Ответ на вопрос про ×2 донат (акции рандомные и автоматические)",
+        "Виды деталей тюнинга (R, X, F)",
+        "Хобби (рыбалка, охота, клады)",
+        "Жалоба на наказание — как отвечать? (объяснить, пересмотреть запись, при споре — форум)",
+        "Дорогу перекрыли ЛТС — действия? (сдвинуть, предупредить, повтор — так же, на 3-й — кик)",
+        "Передача аккаунта третьим лицам — наказание? (блок 7 дней 1 стадия)",
+        "Читер везёт игрока — действия? (читеру наказание, игроку — покрывательство)",
+        "Передача валюты через казино? (1-й пред, далее пермач + изъятие)",
+        "Как бездействием нанести ущерб серверу? (покрывательство)",
+        "Фраза «иди убейся» — наказание? (нет)",
+        "Крик «Слава Украине» на спавне МЗ — действия? (предупреждение, далее пермач 9.9)",
+        "Без инвиза ППС просит паспорт — действия? (сообщить что не РП-персонаж, пред, при повторе — наказать)",
+        "Оскорбляет во внеигровой чат — накажешь? (вправе за оск администрации)",
+        "Оскорбление в названии клана — что делать? (зам.управу/управу)",
+        "Не может передать деньги девушке — что это? (одинаковый серийник/IP)",
+        "На репорте игрок вышел во время оформления ППС — действия? (система откинет)",
+        "Кататься и болтать просто так — что будет? (снятие)",
+        "Админ другого сервера просит инфу о донате — можно? (нет)",
+        "Какие команды в голосовой? (только /me)",
+        "Можно наказывать медиа-партнёра по 6.16? (можно)",
+        "Война кланов, ППС хватает один клан — действия? (нРП, в красную книгу)",
+        "Подозрение на передачу — разные IP — что скажешь? (передам ЗУ)",
+        "Блат у друга-админа — действия? (передам ЗУ)",
+        "Макс. кол-во замов в МЗ? (7)",
+        "Как выйти из ЧС лидеров? (ЖБ на форум — жалоба на администрацию сервера)",
+        "Когда спутник не отслеживает? (скрыт ник через услуги)",
+        "Лидер понизил с сержанта до стажёра — действия? (проверить трудкнижку, откатить, разбирательство, за блат — бан)",
+        "Фракциям можно использовать статьи из реала? (нет)",
+        "Инкассаторы: напарник ничего не делает — действия? (проверить на АФК)",
+        "Лидер переводит в другой город 3-й раз за неделю — действия? (его право)",
+        "Лидер видит чаты всех городов? (видит все)"
+      ],
+      admin: [
+        "Обязанности администратора",
+        "Как и в каких случаях нужно проверить игрока на передачу",
+        "Как проводить выдачу фракции",
+        "Назови конечный продукт некстрп",
+        "Назови все виды абьюза",
+        "Что такое Ущерб серверу",
+        "С какого уровня можно вступать во фракцию",
+        "Что теперь вместо трудовой книги",
+        "Какое КД на инструмент в ДПС",
+        "Какой инструмент в МЗ",
+        "Как прокачивать досье",
+        "Кто может покупать усилители для фракции",
+        "Лидер видит чаты всех городов, или только того, где находится?",
+        "Когда обновляется лимит премий во фракции?",
+        "Что обозначает звёздочка в F3, рядом с бюджетом фракции?",
+        "Сколько замов может быть в МЗ? А во ФСИН?",
+        "Стрельба из авто: с тека переключение багом на абакан из-за руля — наказуемо?",
+        "Стрельба в щель ворот армии — наказывается?",
+        "Работая по репорту увидел, как ППС задержал коллегу — действия?",
+        "ЗЗ: таранит, пытаясь вытолкать — накажешь?",
+        "Xpeng летит на крышу и катается — что делать?",
+        "Ловят макросами оружие в шопе — действия?",
+        "Мэр катается на личном ТС игрока из ОПГ во время объезда — накажешь?",
+        "ОПГ из ситуации стреляет по авто, мэр бездействует — нРП для мэра?",
+        "ДМ между союзными кланами — наказывать?"
       ]
     };
 
-    let current = 0, score = 0, selected = [], startTime = 0, questionList = [], role = '', nickname = '';
+    // ===== Состояние =====
+    let role = null, list = [], i = 0, score = 0, half = 0, wrong = 0, startedAt = 0, tickRef = null, nickname = '';
 
-    function startTest() {
-      nickname = document.getElementById('nickname').value.trim();
-      if (!nickname) return alert('Введите ник аттестуемого');
-      role = document.getElementById('role').value;
-      questionList = questions[role];
-      current = 0;
-      score = 0;
-      selected = [];
-      startTime = Date.now();
-      document.getElementById('test').style.display = 'block';
-      document.getElementById('result').style.display = 'none';
-      showQuestion();
+    // ===== UI helpers =====
+    const $ = s => document.querySelector(s);
+    const el = id => document.getElementById(id);
+
+    function setProgress(){
+      const pct = list.length ? ((i)/list.length*100) : 0;
+      el('barFill').style.width = pct+'%';
+      el('pcount').textContent = `${Math.min(i+1, list.length)}/${list.length}`;
     }
 
-    function showQuestion() {
-      document.getElementById('question').textContent = questionList[current];
-      updateTimer();
+    function renderQuestion(){
+      if(i>=list.length){ return endTest(); }
+      el('qtext').textContent = list[i];
+      setProgress();
     }
 
-    function gradeAnswer(value) {
-      score += value;
-      if (value < 1) selected.push({ q: questionList[current], v: value });
-      nextQuestion();
+    function startRole(r){
+      nickname = el('nickname').value.trim();
+      if(!nickname){ alert('Введите ник аттестуемого'); return; }
+      role = r; list = [...questions[r]]; i=0; score=0; half=0; wrong=0; startedAt=Date.now();
+      $('#testCard').style.display='block';
+      $('#result').style.display='none';
+      renderQuestion();
+      tickRef && clearInterval(tickRef);
+      tickRef = setInterval(()=>{ const sec = Math.floor((Date.now()-startedAt)/1000); el('timer').textContent = `Прошло: ${sec} сек.`; },1000);
     }
 
-    function nextQuestion() {
-      current++;
-      if (current >= questionList.length) {
-        endTest();
-      } else {
-        showQuestion();
-      }
-    }
-
-    function endTest() {
-      document.getElementById('test').style.display = 'none';
-      document.getElementById('result').style.display = 'block';
-      const finalScore = (score / questionList.length * 10).toFixed(2);
-      document.getElementById('finalName').textContent = `Аттестуемый: ${nickname}`;
-      document.getElementById('score').textContent = `Оценка: ${finalScore} (${finalScore >= 6 ? 'Пройдено' : 'Не пройдено'})`;
-      const duration = Math.round((Date.now() - startTime) / 1000);
-      document.getElementById('time').textContent = `Время: ${duration} сек.`;
-      const log = document.getElementById('log');
-      log.innerHTML = '';
-      selected.forEach(e => {
+    function grade(val){
+      score += val; if(val===0.5) half++; if(val===0) wrong++;
+      if(val<1){ // лог неточных
         const li = document.createElement('li');
-        li.textContent = `${e.q} — ${e.v === 0 ? 'Неверно' : 'Частично'}`;
-        log.appendChild(li);
+        li.textContent = `${i+1}. ${list[i]} — ${val===0?'Неверно':'Частично'}`;
+        el('rList').appendChild(li);
+      }
+      i++; renderQuestion();
+    }
+
+    function endTest(){
+      clearInterval(tickRef);
+      $('#testCard').style.display='none';
+      const grade10 = +(score / list.length * 10).toFixed(2);
+      const passed = grade10 >= 6;
+      const seconds = Math.floor((Date.now()-startedAt)/1000);
+
+      const res = $('#result');
+      res.classList.toggle('bad', !passed);
+      res.style.display='block';
+      el('rGrade').textContent = `Оценка — ${grade10}/10`;
+      el('rChip').textContent = passed ? 'ПРОЙДЕНО' : 'НЕ ПРОЙДЕНО';
+      el('rChip').className = 'rchip ' + (passed ? 'ok' : 'no');
+      el('rName').textContent = nickname;
+      el('rRole').textContent = roleName(role);
+      el('rTime').textContent = fmtTime(seconds) + (isFast(role, seconds) ? ' • быстро' : ' • медленно');
+      el('rOk').textContent = (list.length - half - wrong);
+      el('rHalf').textContent = half;
+      el('rBad').textContent = wrong;
+
+      appendHistory({
+        id: Date.now(),
+        name: nickname,
+        role: roleName(role),
+        grade: grade10,
+        passed,
+        seconds,
+        timestamp: new Date().toISOString()
+      });
+      renderHistory();
+    }
+
+    function roleName(r){
+      return r==='helper'?'Хелпер': r==='moderator'?'Модератор':'Администратор';
+    }
+
+    function fmtTime(s){
+      const m = Math.floor(s/60), ss = s%60; return `${m}:${String(ss).padStart(2,'0')}`;
+    }
+
+    function isFast(r, s){
+      // пороги из ТЗ: helper 7:45 (465с), moder 16:01 (961с). Для admin поставим референс 10:00 (600с)
+      const thr = r==='helper'?465 : r==='moderator'?961 : 600;
+      return s <= thr;
+    }
+
+    // ===== История / attlist =====
+    const LS_KEY = 'attlist';
+
+    function loadHistory(){
+      try{ return JSON.parse(localStorage.getItem(LS_KEY)||'[]'); }catch(e){return []}
+    }
+    function saveHistory(arr){ localStorage.setItem(LS_KEY, JSON.stringify(arr)); }
+
+    function appendHistory(entry){
+      const arr = loadHistory();
+      arr.push(entry);
+      saveHistory(arr);
+    }
+
+    function renderHistory(){
+      const box = el('historyList'); box.innerHTML = '';
+      const arr = loadHistory().slice().reverse();
+      if(!arr.length){ box.innerHTML = '<div class="htag">История пуста</div>'; return; }
+      arr.forEach(e=>{
+        const row = document.createElement('div'); row.className='hrow';
+        const left = document.createElement('div');
+        left.innerHTML = `<div><strong>${e.name}</strong> • ${e.role}</div><div class="htag">${new Date(e.timestamp).toLocaleString()}</div>`;
+        const right = document.createElement('div'); right.className='chip';
+        const pass = document.createElement('span'); pass.className='hpass'; pass.textContent = `${e.grade}/10`;
+        const tag = document.createElement('span'); tag.className = e.passed?'ok':'no'; tag.textContent = e.passed?'пройдено':'не пройдено';
+        right.appendChild(pass); right.appendChild(tag);
+        row.appendChild(left); row.appendChild(right);
+        box.appendChild(row);
       });
     }
 
-    function updateTimer() {
-      const now = Math.round((Date.now() - startTime) / 1000);
-      document.getElementById('timer').textContent = `Прошло: ${now} сек.`;
+    function downloadAttlist(){
+      const arr = loadHistory();
+      const lines = arr.map((e,idx)=>`${idx+1}. ${e.name} • ${e.role} • ${e.grade}/10 • ${fmtTime(e.seconds)} • ${e.passed?'пройдено':'не пройдено'} • ${new Date(e.timestamp).toLocaleString()}`);
+      const blob = new Blob([lines.join('\n')||'История пуста'], {type:'text/plain'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.download='attlist.txt'; a.click(); URL.revokeObjectURL(url);
     }
-    setInterval(() => {
-      if (document.getElementById('test').style.display === 'block') updateTimer();
-    }, 1000);
+
+    // ===== Слушатели =====
+    document.querySelectorAll('.role').forEach(card=>{
+      card.addEventListener('click',()=>startRole(card.dataset.role));
+      card.addEventListener('keydown',e=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); startRole(card.dataset.role);} });
+    });
+
+    el('btnWrong').onclick = ()=>grade(0);
+    el('btnPartial').onclick = ()=>grade(0.5);
+    el('btnRight').onclick = ()=>grade(1);
+    el('btnNext').onclick = ()=>{ i++; renderQuestion(); };
+    el('downloadBtn').onclick = downloadAttlist;
+
+    // Инициализация
+    renderHistory();
   </script>
 </body>
 </html>
