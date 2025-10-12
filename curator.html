@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Аттестация - Панель куратора</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .curator-container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            animation: slideInUp 0.8s cubic-bezier(0.23, 1, 0.320, 1);
+        }
+
+        .session-info {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-light);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .session-info::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--blue-primary), var(--blue-light), var(--blue-primary));
+            animation: gradientShift 3s ease-in-out infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { transform: translateX(-100%); }
+            50% { transform: translateX(100%); }
+        }
+
+        .session-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .session-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .session-badge {
+            background: linear-gradient(135deg, var(--blue-primary), var(--blue-secondary));
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            box-shadow: 0 0 15px var(--blue-glow);
+        }
+
+        .session-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .detail-item {
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            border: 1px solid var(--border-light);
+            transition: all 0.3s ease;
+        }
+
+        .detail-item:hover {
+            border-color: var(--blue-primary);
+            transform: translateY(-2px);
+        }
+
+        .detail-label {
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .detail-value {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .progress-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-quaternary);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--blue-primary), var(--blue-light));
+            transition: width 0.6s cubic-bezier(0.23, 1, 0.320, 1);
+            width: 0%;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 20px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3));
+            animation: progressShine 2s linear infinite;
+        }
+
+        @keyframes progressShine {
+            0% { transform: translateX(-20px); }
+            100% { transform: translateX(20px); }
+        }
+
+        .question-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+            animation: questionSlide 0.5s cubic-bezier(0.23, 1, 0.320, 1);
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .question-counter {
+            background: var(--blue-primary);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 1rem;
+            box-shadow: 0 0 20px var(--blue-glow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .question-counter::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: counterShine 3s ease-in-out infinite;
+        }
+
+        @keyframes counterShine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .timer {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--blue-primary);
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+            padding: 0.5rem 1rem;
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            border: 1px solid var(--border-medium);
+            animation: timerPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes timerPulse {
+            0%, 100% { 
+                box-shadow: 0 0 0 0 var(--blue-glow);
+                border-color: var(--border-medium);
+            }
+            50% { 
+                box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
+                border-color: var(--blue-primary);
+            }
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            color: var(--text-primary);
+            padding: 2rem;
+            background: var(--bg-tertiary);
+            border-radius: 16px;
+            border-left: 4px solid var(--blue-primary);
+            position: relative;
+        }
+
+        .question-text::before {
+            content: '❓';
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            opacity: 0.3;
+        }
+
+        .grading-section {
+            background: var(--bg-tertiary);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid var(--border-light);
+        }
+
+        .grading-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .grading-header h3 {
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .grading-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .grade-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .grade-btn {
+            padding: 1rem 1.5rem;
+            border: none;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .grade-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .grade-btn:hover::before {
+            left: 100%;
+        }
+
+        .grade-btn.correct {
+            background: linear-gradient(135deg, var(--success), #00a693);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 212, 170, 0.3);
+        }
+
+        .grade-btn.correct:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(0, 212, 170, 0.4);
+        }
+
+        .grade-btn.partial {
+            background: linear-gradient(135deg, var(--warning), #e6830d);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 159, 10, 0.3);
+        }
+
+        .grade-btn.partial:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(255, 159, 10, 0.4);
+        }
+
+        .grade-btn.incorrect {
+            background: linear-gradient(135deg, var(--error), #d63384);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 69, 58, 0.3);
+        }
+
+        .grade-btn.incorrect:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(255, 69, 58, 0.4);
+        }
+
+        .controls-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 2rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .results-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 20px;
+            padding: 3rem;
+            text-align: center;
+            animation: resultSlideIn 0.8s cubic-bezier(0.23, 1, 0.320, 1);
+        }
+
+        .results-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: resultIconBounce 0.6s ease-out 0.3s both;
+        }
+
+        .final-score {
+            font-size: 4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--blue-primary), var(--blue-light));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 1rem 0;
+            animation: scoreReveal 1s ease-out 0.5s both;
+        }
+
+        .result-status {
+            font-size: 1.3rem;
+            margin: 1rem 0;
+            font-weight: 600;
+        }
+
+        .result-actions {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        @keyframes questionSlide {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes resultSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        @keyframes resultIconBounce {
+            from {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes scoreReveal {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Анимированный фон -->
+    <div class="animated-bg">
+        <div class="floating-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+            <div class="shape shape-4"></div>
+            <div class="shape shape-5"></div>
+        </div>
+        <div class="light-beams">
+            <div class="beam beam-1"></div>
+            <div class="beam beam-2"></div>
+            <div class="beam beam-3"></div>
+        </div>
+        <div class="glowing-orbs">
+            <div class="orb orb-1"></div>
+            <div class="orb orb-2"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="header-title">
+                    <span class="title-main">Панель</span>
+                    <span class="title-sub">Куратора</span>
+                </h1>
+                <div class="header-actions">
+                    <button class="btn-secondary" onclick="window.location.href='index.html'">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 12H5m7-7l-7 7 7 7"/>
+                        </svg>
+                        На главную
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="curator-container">
+            <!-- Информация о сессии -->
+            <div class="session-info">
+                <div class="session-header">
+                    <div class="session-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+                        </svg>
+                        Аттестация проводится
+                    </div>
+                    <div class="session-badge" id="sessionStatus">Подготовка</div>
+                </div>
+
+                <div class="session-details">
+                    <div class="detail-item">
+                        <div class="detail-label">👤 Аттестуемый</div>
+                        <div class="detail-value" id="sessionName">Загрузка...</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">🎭 Роль</div>
+                        <div class="detail-value" id="sessionRole">—</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">🖥️ Сервер</div>
+                        <div class="detail-value" id="sessionServer">—</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">📝 Вопросов</div>
+                        <div class="detail-value" id="sessionQuestions">—</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Прогресс -->
+            <div class="progress-section" id="progressSection">
+                <div class="progress-header">
+                    <h3>Прогресс аттестации</h3>
+                    <span id="progressText">Вопрос 0 из 0</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <!-- Карточка вопроса -->
+            <div class="question-card" id="questionCard" style="display: none;">
+                <div class="question-header">
+                    <div class="question-counter" id="questionCounter">Вопрос 1</div>
+                    <div class="timer" id="timer">00:00</div>
+                </div>
+
+                <div class="question-text" id="questionText">
+                    Здесь будет отображен текст вопроса для аттестуемого
+                </div>
+
+                <div class="grading-section">
+                    <div class="grading-header">
+                        <h3>Оценка ответа</h3>
+                        <p class="grading-subtitle">Выберите оценку после получения ответа от аттестуемого</p>
+                    </div>
+
+                    <div class="grade-buttons">
+                        <button class="grade-btn incorrect" onclick="gradeAnswer(0)">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="15" y1="9" x2="9" y2="15"/>
+                                <line x1="9" y1="9" x2="15" y2="15"/>
+                            </svg>
+                            Неверно
+                        </button>
+                        <button class="grade-btn partial" onclick="gradeAnswer(0.5)">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M8 12l2 2 4-4"/>
+                                <path d="M16 12l-2 2-4-4" opacity="0.5"/>
+                            </svg>
+                            Частично
+                        </button>
+                        <button class="grade-btn correct" onclick="gradeAnswer(1)">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M9 12l2 2 4-4"/>
+                            </svg>
+                            Верно
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Результаты -->
+            <div class="results-container" id="resultsContainer" style="display: none;">
+                <div class="results-icon" id="resultsIcon">🎯</div>
+                <h2>Аттестация завершена</h2>
+                <div class="final-score" id="finalScore">0.0/10</div>
+                <div class="result-status" id="resultStatus">Статус определяется...</div>
+
+                <div class="result-actions">
+                    <button class="btn-primary" onclick="saveResults()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                            <polyline points="17,21 17,13 7,13 7,21"/>
+                            <polyline points="7,3 7,8 15,8"/>
+                        </svg>
+                        Сохранить результат
+                    </button>
+                    <button class="btn-secondary" onclick="window.location.href='index.html'">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                            <polyline points="9,22 9,12 15,12 15,22"/>
+                        </svg>
+                        На главную
+                    </button>
+                </div>
+            </div>
+
+            <!-- Элементы управления -->
+            <div class="controls-section" id="controlsSection" style="display: none;">
+                <div class="control-group">
+                    <button class="btn-secondary" id="prevQuestionBtn" onclick="previousQuestion()" disabled>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 12H5m7-7l-7 7 7 7"/>
+                        </svg>
+                        Предыдущий
+                    </button>
+                </div>
+
+                <div class="control-group">
+                    <button class="btn-ghost" onclick="pauseAttestation()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="6" y="4" width="4" height="16"/>
+                            <rect x="14" y="4" width="4" height="16"/>
+                        </svg>
+                        Пауза
+                    </button>
+                    <button class="btn-primary" id="nextQuestionBtn" onclick="nextQuestion()">
+                        Следующий
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14m-7-7l7 7-7 7"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="curator.js"></script>
+</body>
+</html>
