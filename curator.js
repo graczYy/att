@@ -5,25 +5,21 @@ class CuratorAttestation {
         this.startTime = null;
         this.timer = null;
         this.session = null;
-
         this.init();
     }
 
     async init() {
         try {
             console.log('🚀 Инициализация панели куратора...');
-
             this.loadSessionFromURL();
             this.loadQuestions();
             this.setupUI();
             this.bindEvents();
-
             console.log('✅ Панель куратора готова');
 
             setTimeout(() => {
                 this.startAttestation();
             }, 1000);
-
         } catch (error) {
             console.error('❌ Ошибка инициализации куратора:', error);
             this.showError('Ошибка инициализации системы');
@@ -61,7 +57,7 @@ class CuratorAttestation {
                     "Что такое правило новой жизни?",
                     "Когда можно чинить машины игрокам?",
                     "Если ты увидел что сотрудник фракции нарушил без формы, будешь отправлять проблемник?",
-                    "Тебя телепортирует модератор на репорт, где игрок жалуется на выданное тобой наказание. Что будешь делать?",
+                    "Тебя телепортирует модератор на репорт, где игрок жалуется на выданное тобой наказании. Что будешь делать?",
                     "Ты принимаешь репорт и видишь, как игрок давит второго на машине... Будешь наказывать?"
                 ],
                 "moderator": [
@@ -179,7 +175,7 @@ class CuratorAttestation {
                     "Что такое правило новой жизни?",
                     "Когда можно чинить машины игрокам?",
                     "Если ты увидел что сотрудник фракции нарушил без формы, будешь отправлять проблемник?",
-                    "Тебя телепортирует модератор на репорт, где игрок жалуется на выданное тобой наказание. Что будешь делать?",
+                    "Тебя телепортирует модератор на репорт, где игрок жалуется на выданное тобой наказании. Что будешь делать?",
                     "Ты принимаешь репорт и видишь, как игрок давит второго на машине... Будешь наказывать?"
                 ],
                 "moderator": [
@@ -270,29 +266,24 @@ class CuratorAttestation {
                 ]
             }
         };
-
         console.log('✅ ПОЛНЫЙ банк вопросов загружен');
     }
 
     loadSessionFromURL() {
         const urlParams = new URLSearchParams(window.location.search);
-
         this.session = {
             name: urlParams.get('name') || 'Неизвестный',
             server: urlParams.get('server') || 'rublevo',
             role: urlParams.get('role') || 'helper'
         };
-
         console.log('📋 Сессия загружена:', this.session);
     }
 
     setupUI() {
         this.updateSessionInfo();
-
         document.getElementById('questionCard').style.display = 'none';
         document.getElementById('resultsContainer').style.display = 'none';
         document.getElementById('controlsSection').style.display = 'none';
-
         console.log('🎨 Интерфейс настроен');
     }
 
@@ -324,7 +315,6 @@ class CuratorAttestation {
             console.error(`❌ Вопросы не найдены для ${this.session.server}/${this.session.role}`);
             return '0';
         }
-
         const count = this.questions[this.session.server][this.session.role].length;
         console.log(`📊 Вопросов для ${this.session.role} на ${this.session.server}: ${count}`);
         return count.toString();
@@ -336,13 +326,11 @@ class CuratorAttestation {
         window.previousQuestion = () => this.previousQuestion();
         window.pauseAttestation = () => this.pauseAttestation();
         window.saveResults = () => this.saveResults();
-
         console.log('🔗 События привязаны');
     }
 
     startAttestation() {
         const questionsAvailable = this.questions[this.session.server][this.session.role];
-
         if (!questionsAvailable || questionsAvailable.length === 0) {
             this.showError('Вопросы для выбранной роли не найдены');
             return;
@@ -366,7 +354,6 @@ class CuratorAttestation {
 
         this.showCurrentQuestion();
         this.startTimer();
-
         console.log('✅ Аттестация запущена');
     }
 
@@ -410,7 +397,7 @@ class CuratorAttestation {
                 nextBtn.innerHTML = `
                     Завершить аттестацию
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M20 6L9 17l-5-5"/>
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
                     </svg>
                 `;
                 nextBtn.style.background = 'linear-gradient(135deg, var(--success), #00a693)';
@@ -418,7 +405,7 @@ class CuratorAttestation {
                 nextBtn.innerHTML = `
                     Следующий
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M5 12h14m-7-7l7 7-7 7"/>
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
                     </svg>
                 `;
                 nextBtn.style.background = '';
@@ -434,7 +421,7 @@ class CuratorAttestation {
             question: this.questions[this.session.server][this.session.role][this.currentQuestion],
             grade: grade,
             timestamp: Date.now(),
-            comment: '' // Добавляем поле для комментариев
+            comment: ''
         };
 
         this.answers[this.currentQuestion] = answer;
@@ -450,17 +437,17 @@ class CuratorAttestation {
             buttons.forEach(btn => {
                 btn.style.transform = '';
             });
-
+            
             // Автоматически переходим к следующему вопросу если не последний
             if (this.currentQuestion < this.questions[this.session.server][this.session.role].length - 1) {
-                setTimeout(() => this.nextQuestion(), 300); // Уменьшил задержку
+                setTimeout(() => this.nextQuestion(), 300);
             }
-        }, 150); // Уменьшил время анимации
+        }, 150);
     }
 
     nextQuestion() {
         const questions = this.questions[this.session.server][this.session.role];
-
+        
         if (this.currentQuestion >= questions.length - 1) {
             this.finishAttestation();
         } else {
@@ -480,28 +467,24 @@ class CuratorAttestation {
         if (this.timer) {
             clearInterval(this.timer);
             this.timer = null;
-
             const btn = event.target;
             btn.innerHTML = `
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polygon points="5,3 19,12 5,21 5,3"/>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <polygon points="5 3 19 12 5 21 5 3"/>
                 </svg>
                 Продолжить
             `;
-
             console.log('⏸️ Аттестация приостановлена');
         } else {
             this.startTimer();
-
             const btn = event.target;
             btn.innerHTML = `
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                     <rect x="6" y="4" width="4" height="16"/>
                     <rect x="14" y="4" width="4" height="16"/>
                 </svg>
                 Пауза
             `;
-
             console.log('▶️ Аттестация продолжена');
         }
     }
@@ -521,16 +504,32 @@ class CuratorAttestation {
 
     finishAttestation() {
         console.log('🏁 Завершение аттестации');
-
         if (this.timer) clearInterval(this.timer);
 
         const totalQuestions = this.questions[this.session.server][this.session.role].length;
-        const totalScore = this.answers.reduce((sum, answer) => sum + (answer ? answer.grade : 0), 0);
+        
+        // ИСПРАВЛЕНИЕ 1: Правильный подсчет суммы баллов
+        // Убедимся что все ответы учитываются
+        const totalScore = this.answers.reduce((sum, answer) => {
+            if (answer && typeof answer.grade === 'number') {
+                return sum + answer.grade;
+            }
+            return sum;
+        }, 0);
+        
+        // ИСПРАВЛЕНИЕ 2: Правильная формула для 10-балльной шкалы
+        // Если все 28 вопросов правильны (28 баллов), должно быть 10/10
         const finalScore = (totalScore / totalQuestions) * 10;
+        
         const passed = finalScore >= 6.0;
         const duration = Math.floor((Date.now() - this.startTime) / 1000);
-
-        console.log(`📊 Результат: ${finalScore.toFixed(1)}/10 (${passed ? 'СДАНО' : 'НЕ СДАНО'})`);
+        
+        console.log(`📊 Детали расчета:`);
+        console.log(`   Всего вопросов: ${totalQuestions}`);
+        console.log(`   Сумма баллов: ${totalScore}`);
+        console.log(`   Ответов в массиве: ${this.answers.length}`);
+        console.log(`   Итоговый балл: ${finalScore.toFixed(1)}/10`);
+        console.log(`   Статус: ${passed ? 'СДАНО' : 'НЕ СДАНО'}`);
 
         // Показываем экран результатов с детальным логом
         this.showDetailedResults(totalQuestions, finalScore, passed, duration);
@@ -562,62 +561,63 @@ class CuratorAttestation {
     }
 
     createDetailedResultsHTML(totalQuestions, finalScore, passed, duration) {
+        // ИСПРАВЛЕНИЕ 3: Правильный подсчет статистики с фильтрацией пустых элементов
+        const validAnswers = this.answers.filter(a => a && typeof a.grade === 'number');
+        
         const stats = {
-            correct: this.answers.filter(a => a && a.grade === 1).length,
-            partial: this.answers.filter(a => a && a.grade === 0.5).length,
-            incorrect: this.answers.filter(a => a && a.grade === 0).length
+            correct: validAnswers.filter(a => a.grade === 1).length,
+            partial: validAnswers.filter(a => a.grade === 0.5).length,
+            incorrect: validAnswers.filter(a => a.grade === 0).length
         };
+        
+        console.log(`📊 Статистика ответов:`);
+        console.log(`   Верных: ${stats.correct}`);
+        console.log(`   Частично верных: ${stats.partial}`);
+        console.log(`   Неверных: ${stats.incorrect}`);
+        console.log(`   Всего оценено: ${stats.correct + stats.partial + stats.incorrect}`);
 
         return `
-            <div style="max-width: 1000px; margin: 0 auto; padding: 2rem;">
-                <!-- Заголовок результата -->
-                <div style="text-align: center; margin-bottom: 3rem;">
-                    <div style="font-size: 3rem; margin-bottom: 0.5rem;">
-                        ${passed ? '🎉' : '💔'}
-                    </div>
-                    <h2 style="font-size: 2rem; color: ${passed ? 'var(--success)' : 'var(--error)'}; margin-bottom: 0.5rem;">
-                        ${passed ? 'Аттестация успешно пройдена!' : 'Аттестация не пройдена'}
-                    </h2>
-                    <div style="font-size: 2.5rem; font-weight: 700; color: var(--blue-primary);">
-                        ${finalScore.toFixed(1)}/10
-                    </div>
+            <div style="text-align: center; padding: 2rem;">
+                <div style="font-size: 4rem; margin-bottom: 1rem;">
+                    ${passed ? '🎉' : '💔'}
                 </div>
-
-                <!-- Краткая статистика -->
+                <h2 style="font-size: 1.75rem; color: var(--text-primary); margin-bottom: 2rem;">
+                    ${passed ? 'Аттестация успешно пройдена!' : 'Аттестация не пройдена'}
+                </h2>
+                
+                <div style="font-size: 3rem; font-weight: 700; color: ${passed ? 'var(--success)' : 'var(--error)'}; margin-bottom: 2rem;">
+                    ${finalScore.toFixed(1)}/10
+                </div>
+                
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 3rem;">
-                    <div style="background: var(--bg-tertiary); padding: 1.5rem; border-radius: 12px; text-align: center; border: 1px solid var(--border-light);">
-                        <div style="font-size: 1.8rem; font-weight: 700; color: var(--success); margin-bottom: 0.5rem;">${stats.correct}</div>
+                    <div style="background: var(--bg-tertiary); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border-light);">
+                        <div style="font-size: 2rem; color: var(--success); font-weight: 700;">${stats.correct}</div>
                         <div style="color: var(--text-secondary); font-size: 0.9rem;">Верно</div>
                     </div>
-                    <div style="background: var(--bg-tertiary); padding: 1.5rem; border-radius: 12px; text-align: center; border: 1px solid var(--border-light);">
-                        <div style="font-size: 1.8rem; font-weight: 700; color: var(--warning); margin-bottom: 0.5rem;">${stats.partial}</div>
+                    <div style="background: var(--bg-tertiary); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border-light);">
+                        <div style="font-size: 2rem; color: var(--warning); font-weight: 700;">${stats.partial}</div>
                         <div style="color: var(--text-secondary); font-size: 0.9rem;">Частично</div>
                     </div>
-                    <div style="background: var(--bg-tertiary); padding: 1.5rem; border-radius: 12px; text-align: center; border: 1px solid var(--border-light);">
-                        <div style="font-size: 1.8rem; font-weight: 700; color: var(--error); margin-bottom: 0.5rem;">${stats.incorrect}</div>
+                    <div style="background: var(--bg-tertiary); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border-light);">
+                        <div style="font-size: 2rem; color: var(--error); font-weight: 700;">${stats.incorrect}</div>
                         <div style="color: var(--text-secondary); font-size: 0.9rem;">Неверно</div>
                     </div>
-                    <div style="background: var(--bg-tertiary); padding: 1.5rem; border-radius: 12px; text-align: center; border: 1px solid var(--border-light);">
-                        <div style="font-size: 1.8rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem;">${this.formatDuration(duration)}</div>
+                    <div style="background: var(--bg-tertiary); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border-light);">
+                        <div style="font-size: 2rem; color: var(--blue-primary); font-weight: 700;">${this.formatDuration(duration)}</div>
                         <div style="color: var(--text-secondary); font-size: 0.9rem;">Время</div>
                     </div>
                 </div>
-
-                <!-- Детальный лог вопросов -->
-                <div style="background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 16px; padding: 2rem; margin-bottom: 2rem;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-light);">
-                        <h3 style="color: var(--text-primary); font-size: 1.3rem; display: flex; align-items: center; gap: 0.5rem;">
-                            📝 Детальный лог по вопросам
-                        </h3>
-                        <div style="color: var(--text-secondary); font-size: 0.9rem;">
+                
+                <div class="question-log">
+                    <div class="question-log-header">
+                        <h4>📝 Детальный лог по вопросам</h4>
+                        <span style="color: var(--text-secondary); font-size: 0.9rem;">
                             Можете добавить комментарии для объяснения ошибок
-                        </div>
+                        </span>
                     </div>
-
-                    <div style="max-height: 400px; overflow-y: auto; padding-right: 1rem;">
-                        ${this.answers.map((answer, index) => {
-                            if (!answer) return '';
-
+                    
+                    <div style="text-align: left;">
+                        ${validAnswers.map((answer, index) => {
                             const gradeClass = answer.grade === 1 ? 'correct' : 
                                              answer.grade === 0.5 ? 'partial' : 'incorrect';
                             const gradeText = answer.grade === 1 ? 'Верно' : 
@@ -628,25 +628,21 @@ class CuratorAttestation {
                                               answer.grade === 0.5 ? 'var(--warning)' : 'var(--error)';
 
                             return `
-                                <div style="background: var(--bg-tertiary); border: 1px solid var(--border-light); border-left: 4px solid ${borderColor}; border-radius: 12px; margin-bottom: 1rem; overflow: hidden;">
-                                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; background: var(--bg-quaternary); border-bottom: 1px solid var(--border-light);">
-                                        <div style="font-weight: 600; color: var(--blue-primary); font-size: 0.9rem;">
-                                            Вопрос ${index + 1}
-                                        </div>
-                                        <div style="padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; background: rgba(${answer.grade === 1 ? '0, 212, 170' : answer.grade === 0.5 ? '255, 159, 10' : '255, 69, 58'}, 0.2); color: ${gradeColor}; border: 1px solid rgba(${answer.grade === 1 ? '0, 212, 170' : answer.grade === 0.5 ? '255, 159, 10' : '255, 69, 58'}, 0.3);">
+                                <div class="question-item ${gradeClass}" style="margin-bottom: 1rem; border-left: 4px solid ${borderColor};">
+                                    <div class="question-header">
+                                        <span class="question-number">Вопрос ${answer.questionIndex + 1}</span>
+                                        <span class="question-grade grade-${gradeClass}" style="background: ${gradeColor}22; color: ${gradeColor}; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">
                                             ${gradeText} (${answer.grade} балл${answer.grade === 1 ? '' : answer.grade === 0.5 ? 'а' : 'ов'})
-                                        </div>
+                                        </span>
                                     </div>
-
-                                    <div style="padding: 1.5rem; color: var(--text-primary); font-size: 1rem; line-height: 1.5; border-bottom: 1px solid var(--border-light);">
+                                    <div class="question-text">
                                         ${answer.question}
                                     </div>
-
-                                    <div style="padding: 1rem 1.5rem;">
+                                    <div class="question-comment">
                                         <textarea 
                                             style="width: 100%; min-height: 60px; background: var(--bg-primary); border: 1px solid var(--border-light); border-radius: 8px; padding: 0.75rem; color: var(--text-primary); font-size: 0.9rem; resize: vertical; transition: all 0.3s ease;"
                                             placeholder="Добавьте комментарий для аттестуемого (объяснение ошибки, советы, дополнения)..."
-                                            onchange="window.curatorAttestation.updateAnswerComment(${index}, this.value)"
+                                            onchange="window.curatorAttestation.updateAnswerComment(${answer.questionIndex}, this.value)"
                                             onfocus="this.style.borderColor = 'var(--blue-primary)'; this.style.boxShadow = '0 0 0 2px var(--blue-subtle)';"
                                             onblur="this.style.borderColor = 'var(--border-light)'; this.style.boxShadow = 'none';"
                                         >${answer.comment || ''}</textarea>
@@ -656,25 +652,10 @@ class CuratorAttestation {
                         }).join('')}
                     </div>
                 </div>
-
-                <!-- Кнопки управления -->
-                <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-                    <button 
-                        onclick="window.curatorAttestation.saveResults()" 
-                        style="padding: 0.75rem 2rem; background: linear-gradient(135deg, var(--blue-primary), var(--blue-secondary)); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 1rem; transition: all 0.3s ease;"
-                        onmouseover="this.style.transform = 'translateY(-2px) scale(1.02)'; this.style.boxShadow = '0 8px 25px rgba(0, 122, 255, 0.3)';"
-                        onmouseout="this.style.transform = ''; this.style.boxShadow = '';"
-                    >
+                
+                <div style="margin-top: 3rem; display: flex; gap: 1rem; justify-content: center;">
+                    <button onclick="window.curatorAttestation.saveResults()" class="btn-primary" style="padding: 1rem 2rem; font-size: 1rem;">
                         💾 Сохранить результат
-                    </button>
-
-                    <button 
-                        onclick="window.location.href = 'index.html'" 
-                        style="padding: 0.75rem 2rem; background: var(--bg-tertiary); border: 1px solid var(--border-light); color: var(--text-primary); border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 1rem; transition: all 0.3s ease;"
-                        onmouseover="this.style.background = 'var(--bg-quaternary)'; this.style.borderColor = 'var(--blue-primary)'; this.style.transform = 'translateY(-2px)';"
-                        onmouseout="this.style.background = 'var(--bg-tertiary)'; this.style.borderColor = 'var(--border-light)'; this.style.transform = '';"
-                    >
-                        🏠 На главную
                     </button>
                 </div>
             </div>
